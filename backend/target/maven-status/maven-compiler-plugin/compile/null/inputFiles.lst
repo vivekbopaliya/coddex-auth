@@ -1,0 +1,11 @@
+/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/DTOs/CommonResponse.java
+/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/DTOs/LoginRequest.java
+/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/DTOs/SignupRequest.java
+/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/controllers/UserController.java
+/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/model/User.java
+/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/repository/UserRepository.java
+/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/repository/UserRepositoryImpl.java
+/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/services/EmailService.java
+/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/services/JwtService.java
+/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/services/PasswordService.java
+/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/services/UserService.java
