@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/axios';
+import { toast } from 'sonner';
 
 export const useLogout = () => {
   const queryClient = useQueryClient();
@@ -11,6 +12,10 @@ export const useLogout = () => {
     },
     onSuccess: () => {
       queryClient.clear();
+      toast.success('Logged out successfully');
     },
+    onError: () => {
+      toast.error('An error occurred during logout');
+    }
   });
 };

@@ -1,6 +1,7 @@
 import express from 'express';
 import axios from 'axios';
 import { generateToken } from '../utils/jwt.js';
+import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = express.Router();
 
@@ -20,14 +21,7 @@ export default (QUARKUS_URL) => {
           sameSite: 'lax',
           maxAge: 7 * 24 * 60 * 60 * 1000
         });
-        const message = user.emailVerified 
-          ? "Your email is validated. You can access the portal" 
-          : "You need to validate your email to access the portal";
-        res.status(200).json({ 
-          success: true, 
-          message: message,
-          emailVerified: user.emailVerified 
-        });
+        res.status(200).json(user);
       } else {
         res.status(response.status).json(response.data);
       }
@@ -46,7 +40,7 @@ export default (QUARKUS_URL) => {
     res.status(200).json({ success: true, message: 'Logged out successfully' });
   });
 
-  router.get('/check', req.requireAuth, (req, res) => {
+  router.get('/check', requireAuth, (req, res) => {
     res.status(200).json({ 
       success: true, 
       authenticated: true,

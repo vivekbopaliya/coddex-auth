@@ -20,10 +20,6 @@ app.use(cors({
   credentials: true
 }));
 
-app.use((req, res, next) => {
-  req.requireAuth = (req2, res2, next2) => requireAuth(req2, res2, next2);
-  next();
-});
 
 app.use('/api', publicRoutes(QUARKUS_URL));
 app.use('/api/auth', authRoutes(QUARKUS_URL));

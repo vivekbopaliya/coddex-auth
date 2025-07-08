@@ -1,33 +1,33 @@
 import express from 'express';
 import axios from 'axios';
+import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = express.Router();
 
 export default (QUARKUS_URL) => {
-  // User status
-  router.get('/status', req.requireAuth, async (req, res) => {
+  router.get('/status', requireAuth, async (req, res) => {
     try {
-      const response = await axios.get(`${QUARKUS_URL}/api/user/${req.user.userId}`, {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ success: false, message: 'User not authenticated' });
+      }
+
+      const response = await axios.get(`${QUARKUS_URL}/api/check-status/${userId}`, {
         validateStatus: () => true
       });
+
+      console.log("response", response.data)
+
       if (response.status === 200 && response.data && response.data.success) {
-        const user = response.data.data;
-        const message = user.emailVerified 
-          ? "Your email is validated. You can access the portal" 
-          : "You need to validate your email to access the portal";
-        res.status(200).json({
-          success: true,
-          message: message,
-          emailVerified: user.emailVerified,
-          email: user.email
-        });
+        res.status(200).json(response.data);
       } else {
         res.status(response.status).json(response.data);
       }
     } catch (err) {
       console.error('User status proxy error:', err);
-      res.status(500).json({ error: 'Proxy error' });
+      res.status(500).json({ message: 'Proxy error', success: false });
     }
   });
+
   return router;
 };
