@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { requireAuth } from './src/middleware/requireAuth.js';
-import authRoutes from './src/routes/auth.js';
-import userRoutes from './src/routes/user.js';
-import publicRoutes from './src/routes/public.js';
+import authRoutes from './routes/auth';
+import userRoutes from './routes/user';
+import publicRoutes from './routes/public';
+import { requireAuth } from './middleware/requireAuth';
 
 dotenv.config();
 
@@ -20,16 +20,15 @@ app.use(cors({
   credentials: true
 }));
 
-
 app.use('/api', publicRoutes(QUARKUS_URL));
-app.use('/api/auth', authRoutes(QUARKUS_URL));
+app.use('/api/auth', requireAuth, authRoutes(QUARKUS_URL));
 app.use('/api/user', userRoutes(QUARKUS_URL));
 
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: Request, res: Response) => {
   res.status(200).json({ success: true, message: 'Proxy server is running' });
 });
 
 app.listen(PORT, () => {
   console.log(`Proxy server running on port ${PORT}`);
   console.log(`Proxying requests to Quarkus at ${QUARKUS_URL}`);
-});
+}); 
