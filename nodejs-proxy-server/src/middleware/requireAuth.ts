@@ -1,6 +1,7 @@
-import { verifyToken } from '../utils/jwt.js';
+import { Request, Response, NextFunction } from 'express';
+import { verifyToken } from '../utils/jwt';
 
-export function requireAuth(req, res, next) {
+export function requireAuth(req: Request, res: Response, next: NextFunction) : any{
   const token = req.cookies.session_token;
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -9,6 +10,6 @@ export function requireAuth(req, res, next) {
   if (!decoded) {
     return res.status(401).json({ error: 'Invalid token' });
   }
-  req.user = decoded;
+  (req as any).user = decoded;
   next();
-}
+} 

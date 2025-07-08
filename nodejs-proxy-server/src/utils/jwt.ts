@@ -2,7 +2,13 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here';
 
-export function generateToken(user) {
+export interface User {
+  id: string;
+  email: string;
+  emailVerified: boolean;
+}
+
+export function generateToken(user: User): string {
   return jwt.sign(
     {
       userId: user.id,
@@ -14,7 +20,7 @@ export function generateToken(user) {
   );
 }
 
-export function verifyToken(token) {
+export function verifyToken(token: string): any {
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (err) {

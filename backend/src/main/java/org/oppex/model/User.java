@@ -30,9 +30,6 @@ public class User extends PanacheEntityBase {
     @Column
     private String verificationToken;
 
-    @Column
-    private LocalDateTime expiryDateOfToken;
-
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -56,12 +53,11 @@ public class User extends PanacheEntityBase {
         // Required by JPA
     }
 
-    public User(String email, String password, String salt, String verificationToken, LocalDateTime expiryDateOfToken) {
+    public User(String email, String password, String salt, String verificationToken) {
         this.email = email;
         this.password = password;
         this.salt = salt;
         this.verificationToken = verificationToken;
-        this.expiryDateOfToken= expiryDateOfToken;
         this.isEmailVerified = false;
     }
 
@@ -119,11 +115,4 @@ public class User extends PanacheEntityBase {
         return updatedAt;
     }
 
-    public LocalDateTime getExpiryDateOfToken() {
-        return expiryDateOfToken;
-    }
-
-    public void setExpiryDateOfToken(LocalDateTime expiryDateOfToken) {
-        this.expiryDateOfToken = expiryDateOfToken;
-    }
 }

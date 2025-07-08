@@ -15,6 +15,8 @@ import org.oppex.DTOs.SignupRequest;
 import org.oppex.services.EmailService;
 import org.oppex.services.UserService;
 
+import java.util.UUID;
+
 @Path("/api")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -85,21 +87,16 @@ public class UserController {
                 });
     }
 
-    @POST
-    @Path("/resend-verification")
-    public Uni<Response> resendVerificationEmail(@QueryParam("email") String email) {
-        if (email == null || email.trim().isEmpty()) {
-            return Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new CommonResponse<>("You need to sign up first", null, false))
-                    .build());
-        }
-
-        return userService.resendVerificationEmail(email)
-                .map(response -> Response.ok(response).build())
+    @GET
+    @Path("/check-status/{userId}")
+    public Uni<Response> checkVerifyStatus(@PathParam("userId") UUID userId) {
+        return userService.getAuthStatus(userId)
+                .map(authStatus -> {
+                    return Response.ok(authStatus).build();
+                })
                 .onFailure().recoverWithItem(throwable -> {
-                    String message = throwable.getMessage();
                     return Response.status(Response.Status.BAD_REQUEST)
-                            .entity(new CommonResponse<>(message, null,false))
+                            .entity(new CommonResponse<>(throwable.getMessage(), null, false))
                             .build();
                 });
     }

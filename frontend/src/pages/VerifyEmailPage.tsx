@@ -1,76 +1,79 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useVerifyEmail } from '@/hooks/useVerifyEmail';
-import { toast } from "sonner";
 import { CheckCircle, AlertCircle } from 'lucide-react';
+
+type VerificationState = 'idle' | 'loading' | 'success' | 'error';
+
 
 export function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const {mutateAsync: verify, isPending, error} = useVerifyEmail();
+  const { mutateAsync: verify } = useVerifyEmail();
   const token = searchParams.get('token');
-  const hasTriggered = useRef(false); 
-
+  const hasTriggered = useRef(false);
+  
+  const [verificationState, setVerificationState] = useState<VerificationState>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [backendMessage, setBackendMessage] = useState<string>('');
 
   useEffect(() => {
+    const verifyEmail = async () => {
+      if (!token) return;
+      setVerificationState('loading');
+      try {
+        const result = await verify(token);
+        setVerificationState('success');
+        setErrorMessage('');
+        setBackendMessage(result?.message || '');
+      } catch (err) {
+        setVerificationState('error');
+        const errorMsg = (() => {
+          const error = err as unknown;
+          if (error && typeof error === "object" && "response" in error && error.response && typeof error.response === "object" && "data" in error.response && error.response.data && typeof error.response.data === "object" && "message" in error.response.data) {
+            return (error.response.data as { message?: string }).message || "Failed to verify email";
+          }
+          return "An error occurred during email verification";
+        })();
+        setErrorMessage(errorMsg);
+        setBackendMessage(errorMsg);
+      }
+    };
+
     if (token && !hasTriggered.current) {
       hasTriggered.current = true;
-
-      verify(token, { 
-        onSuccess: (data) => {
-          toast("Success", {
-            description: data.message,
-          });
-        },
-        onError: (error: unknown) => {
-          let message = "Failed to verify email";
-          if (
-            error &&
-            typeof error === "object" &&
-            "response" in error &&
-            error.response &&
-            typeof error.response === "object" &&
-            "data" in error.response &&
-            error.response.data &&
-            typeof error.response.data === "object" &&
-            "message" in error.response.data
-          ) {
-            message =
-              (error.response.data as { message?: string }).message || message;
-          }
-          toast("Error", {
-            description: message,
-          });
-        },
-      });
+      verifyEmail();
     }
-  }, [token, verify]); // Fixed: was verifyEmail
+  }, [token, verify]);
 
   const handleGoToDashboard = () => {
     navigate('/dashboard');
   };
 
-  const handleGoToLogin = () => {
-    navigate('/login');
+  const handleGoToSignup = () => {
+    navigate('/signup');
   };
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-xl">
-          <CardHeader className="text-center">
-            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <CardTitle className="text-2xl font-bold">Invalid Link</CardTitle>
-            <CardDescription>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-100 flex items-center justify-center p-4 sm:p-6 md:p-8">
+        <Card className="w-full max-w-md border-none shadow-2xl bg-white/90 backdrop-blur-sm">
+          <CardHeader className="text-center space-y-3">
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto" />
+            <CardTitle className="text-2xl font-bold text-gray-900">Invalid Link</CardTitle>
+            <CardDescription className="text-gray-600">
               The verification link is invalid or missing.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleGoToLogin} className="w-full">
+            <Button 
+              onClick={handleGoToSignup} 
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-300"
+            >
               Go to Login
             </Button>
           </CardContent>
@@ -79,14 +82,14 @@ export function VerifyEmailPage() {
     );
   }
 
-  if (isPending) { // Fixed: was verifyEmail.isPending
+  if (verificationState === 'loading') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-xl">
-          <CardHeader className="text-center">
-            <LoadingSpinner size="lg" className="mx-auto mb-4" />
-            <CardTitle className="text-2xl font-bold">Verifying Email</CardTitle>
-            <CardDescription>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-100 flex items-center justify-center p-4 sm:p-6 md:p-8">
+        <Card className="w-full max-w-md border-none shadow-2xl bg-white/90 backdrop-blur-sm">
+          <CardHeader className="text-center space-y-3">
+            <LoadingSpinner size="lg" className="mx-auto text-blue-600" />
+            <CardTitle className="text-2xl font-bold text-gray-900">Verifying Email</CardTitle>
+            <CardDescription className="text-gray-600">
               Please wait while we verify your email address...
             </CardDescription>
           </CardHeader>
@@ -95,33 +98,28 @@ export function VerifyEmailPage() {
     );
   }
 
-  if (error) { // Fixed: was verifyEmail.error
+  if (verificationState === 'error') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md shadow-xl">
-          <CardHeader className="text-center">
-            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <CardTitle className="text-2xl font-bold">Verification Failed</CardTitle>
-            <CardDescription>
-              There was an error verifying your email address.
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-100 flex items-center justify-center p-4 sm:p-6 md:p-8">
+        <Card className="w-full max-w-md border-none shadow-2xl bg-white/90 backdrop-blur-sm">
+          <CardHeader className="text-center space-y-3">
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto" />
+            <CardTitle className="text-2xl font-bold text-gray-900">Verification Failed</CardTitle>
+            <CardDescription className="text-gray-600">
+              {backendMessage || 'There was an error verifying your email address.'}
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            {error && ( // Fixed: was verifyEmail.error
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {(() => {
-                    const err = error as unknown; // Fixed: was verifyEmail.error
-                    if (err && typeof err === "object" && "response" in err && err.response && typeof err.response === "object" && "data" in err.response && err.response.data && typeof err.response.data === "object" && "message" in err.response.data) {
-                      return (err.response.data as { message?: string }).message || "Failed to verify email";
-                    }
-                    return "Failed to verify email";
-                  })()}
-                </AlertDescription>
-              </Alert>
-            )}
-            <Button onClick={handleGoToLogin} className="w-full mt-4">
+          <CardContent className="space-y-4">
+            <Alert variant="destructive" className="bg-red-50 border-red-200">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-600">
+                {errorMessage || "Failed to verify email"}
+              </AlertDescription>
+            </Alert>
+            <Button 
+              onClick={handleGoToSignup} 
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-300"
+            >
               Go to Login
             </Button>
           </CardContent>
@@ -130,21 +128,40 @@ export function VerifyEmailPage() {
     );
   }
 
+  if (verificationState === 'success') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-100 flex items-center justify-center p-4 sm:p-6 md:p-8">
+        <Card className="w-full max-w-md border-none shadow-2xl bg-white/90 backdrop-blur-sm">
+          <CardHeader className="text-center space-y-3">
+            <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+            <CardTitle className="text-2xl font-bold text-gray-900">Email Verified!</CardTitle>
+            <CardDescription className="text-gray-600">
+              {backendMessage || 'Your email has been successfully verified. You can now access your account.'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={handleGoToDashboard} 
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-300"
+            >
+              Go to Dashboard
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="text-center">
-          <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-          <CardTitle className="text-2xl font-bold">Email Verified!</CardTitle>
-          <CardDescription>
-            Your email has been successfully verified. You can now access your account.
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-100 flex items-center justify-center p-4 sm:p-6 md:p-8">
+      <Card className="w-full max-w-md border-none shadow-2xl bg-white/90 backdrop-blur-sm">
+        <CardHeader className="text-center space-y-3">
+          <LoadingSpinner size="lg" className="mx-auto text-blue-600" />
+          <CardTitle className="text-2xl font-bold text-gray-900">Initializing...</CardTitle>
+          <CardDescription className="text-gray-600">
+            Preparing email verification...
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Button onClick={handleGoToDashboard} className="w-full">
-            Go to Dashboard
-          </Button>
-        </CardContent>
       </Card>
     </div>
   );

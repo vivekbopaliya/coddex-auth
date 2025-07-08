@@ -31,18 +31,17 @@ public class UserService {
         return userRepository.existsByEmail(request.getEmail())
                 .flatMap(exists -> {
                     if (exists) {
-                        return Uni.createFrom().failure(new Exception("Email already exists!"));
+                        return Uni.createFrom().failure(new Exception("Email already exists, Simply login!"));
                     }
 
                     String salt = passwordService.generateSalt();
                     String hashedPassword = passwordService.hashPassword(request.getPassword(), salt);
 
                     String verificationToken = UUID.randomUUID().toString();
-                    User user = new User(request.getEmail(), hashedPassword, salt, verificationToken, LocalDateTime.now().plusHours(1));
+                    User user = new User(request.getEmail(), hashedPassword, salt, verificationToken);
 
                     return userRepository.save(user)
                             .flatMap(savedUser -> {
-                                // ✅ Blocking email send (non-reactive now)
                                 boolean emailSent = emailService.sendVerificationEmail(savedUser.getEmail(), verificationToken);
 
                                 if (emailSent) {
@@ -62,15 +61,13 @@ public class UserService {
     public Uni<CommonResponse> login(LoginRequest request){
         return userRepository.findByEmail(request.getEmail()).flatMap(user -> {
             if (user.isEmpty()){
-                return Uni.createFrom().failure(new Exception("No user found!"));
+                return Uni.createFrom().failure(new Exception("There is no user with that email exists."));
             }
 
             Boolean isCorrect = passwordService.verifyPassword(request.getPassword(), user.get().getPassword(), user.get().getSalt());
             if (!isCorrect){
-                return Uni.createFrom().failure(new Exception("Password is incorrect!"));
+                return Uni.createFrom().failure(new Exception("Password is incorrect."));
             }
-
-            // Return user data instead of JWT - Node.js will handle JWT generation
             return Uni.createFrom().item(new CommonResponse("Login successful", user.get(), true));
         });
     }
@@ -81,26 +78,38 @@ public class UserService {
         return userRepository.findByVerificationToken(token)
                 .flatMap(userOpt -> {
                     if (userOpt.isEmpty()) {
-                        return Uni.createFrom().item(new CommonResponse("Invalid verification token", null, false));
+                        return Uni.createFrom().failure(new Exception("Invalid verification token."));
                     }
 
-                    System.out.println(userOpt.get());
+                    if(userOpt.get().isEmailVerified()){
+                        return Uni.createFrom().item(new CommonResponse("User is already verified, You can go ahead and login.", null, true));
+                    }
+
                     User user = userOpt.get();
 
-                    // Check if token is expired
-                    if (user.getExpiryDateOfToken().isBefore(LocalDateTime.now())) {
-                        return Uni.createFrom().item(new CommonResponse("Verification token has expired", null, false));
-                    }
-
                     user.setEmailVerified(true);
-                    user.setVerificationToken(null);
-
-                    System.out.println("HELLO");
                     return userRepository.update(user)
                             .flatMap(updatedUser -> {
                                 emailService.sendWelcomeEmail(updatedUser.getEmail());
-                                return Uni.createFrom().item(new CommonResponse("Email verified successfully", null, true));
+                                return Uni.createFrom().item(new CommonResponse("Your email has been successfully verified. You can now access your account.\n" +
+                                        "\n", null, true));
                             });
+                });
+    }
+
+    @WithSession
+    public Uni<CommonResponse> getAuthStatus(UUID userId) {
+        return userRepository.findById(userId)
+                .flatMap(userOpt -> {
+                    if (userOpt.isEmpty()) {
+                        return Uni.createFrom().failure(new Exception("User not found or session expired."));
+                    }
+
+                    User user = userOpt.get();
+
+                    return Uni.createFrom().item(
+                            new CommonResponse("Authentication status retrieved successfully.", user.isEmailVerified(), true)
+                    );
                 });
     }
 
@@ -110,29 +119,5 @@ public class UserService {
 
     public Uni<Optional<User>> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
-    }
-
-    public Uni<CommonResponse> resendVerificationEmail(String email) {
-        return userRepository.findByEmail(email)
-                .flatMap(userOpt -> {
-                    if (userOpt.isEmpty()) {
-                        return Uni.createFrom().failure(new RuntimeException("User not found"));
-                    }
-
-                    User user = userOpt.get();
-
-                    if (user.isEmailVerified()) {
-                        return Uni.createFrom().failure(new RuntimeException("Email is already verified"));
-                    }
-
-                    String verificationToken = UUID.randomUUID().toString();
-                    user.setVerificationToken(verificationToken);
-
-                    return userRepository.update(user)
-                            .flatMap(updatedUser -> {
-                                emailService.sendVerificationEmail(updatedUser.getEmail(), verificationToken);
-                                return Uni.createFrom().item(new CommonResponse("Verification email sent", email, true));
-                            });
-                });
     }
 }

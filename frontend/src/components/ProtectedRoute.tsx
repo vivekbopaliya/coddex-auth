@@ -1,18 +1,16 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuthStatus } from '@/hooks/useAuthStatus';
+import { useAuthCheck } from '@/hooks/useAuthCheck';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requireEmailVerification?: boolean;
 }
 
 export function ProtectedRoute({ 
   children, 
-  requireEmailVerification = false 
 }: ProtectedRouteProps) {
-  const { data: authStatus, isLoading, error } = useAuthStatus();
+  const { data: authStatus, isLoading, error } = useAuthCheck();
 
   if (isLoading) {
     return (
@@ -22,12 +20,8 @@ export function ProtectedRoute({
     );
   }
 
-  if (error || !authStatus) {
+  if (error || !authStatus.authenticated) {
     return <Navigate to="/login" replace />;
-  }
-
-  if (requireEmailVerification && !authStatus.emailVerified) {
-    return <Navigate to="/dashboard" replace />;
   }
 
   return <>{children}</>;
