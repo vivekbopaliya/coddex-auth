@@ -15,7 +15,7 @@ A modern React application built with Vite, providing user authentication (signu
 
 1. **Clone the repository:**
    ```bash
-   git clone  https://github.com/vivekbopaliya/oppex-auth.git
+   git clone  https://github.com/vivekbopaliya/coddex-auth.git
    cd frontend
    ```
 

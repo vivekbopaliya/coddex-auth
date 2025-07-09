@@ -19,7 +19,7 @@ A Node.js Express server that acts as a secure API gateway between the frontend 
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/vivekbopaliya/oppex-auth.git
+   git clone https://github.com/vivekbopaliya/coddex-auth.git
    cd nodejs-proxy-server
    ```
 

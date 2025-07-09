@@ -17,7 +17,7 @@ A RESTful backend built with Quarkus (Java), providing authentication and user m
 
 1. **Clone the repository:**
    ```bash
-   git clone  https://github.com/vivekbopaliya/oppex-auth.git
+   git clone  https://github.com/vivekbopaliya/coddex-auth.git
    cd backend
    ```
 
