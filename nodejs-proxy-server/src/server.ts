@@ -10,7 +10,7 @@ import { requireAuth } from './middleware/requireAuth';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 const QUARKUS_URL = process.env.QUARKUS_URL || 'http://localhost:8080';
 
 app.use(express.json());
@@ -28,7 +28,6 @@ app.get('/api/health', (req: Request, res: Response) => {
   res.status(200).json({ success: true, message: 'Proxy server is running' });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Proxy server running on port ${PORT}`);
-  console.log(`Proxying requests to Quarkus at ${QUARKUS_URL}`);
-}); 
+});
