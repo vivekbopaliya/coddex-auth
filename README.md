@@ -3,6 +3,8 @@
 A secure, scalable authentication platform built with a modern 3-tier architecture. Designed for robust user management, seamless API integration, and cloud-native deployment.
 
 ---
+## Check the video demos of application: (Live demo, Error  Handling, AWS-Postman demo)
+- https://drive.google.com/drive/folders/1MUVT0TD2dSU8RIe_cDb5oRHeH6fxh6m1?usp=sharing
 
 ## Overview
 
