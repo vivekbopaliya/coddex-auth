@@ -11,7 +11,7 @@ import java.util.UUID;
 public class User extends PanacheEntityBase {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)  // Fix: Use UUID strategy
+    @GeneratedValue(strategy = GenerationType.UUID) 
     @Column(updatable = false, nullable = false)
     private UUID id;
 
@@ -36,7 +36,6 @@ public class User extends PanacheEntityBase {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    // --- Lifecycle hooks for timestamps ---
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
@@ -48,9 +47,7 @@ public class User extends PanacheEntityBase {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // --- Constructors ---
     public User() {
-        // Required by JPA
     }
 
     public User(String email, String password, String salt, String verificationToken) {

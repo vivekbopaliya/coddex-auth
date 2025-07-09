@@ -113,11 +113,4 @@ public class UserService {
                 });
     }
 
-    public Uni<Optional<User>> getUserById(UUID userId) {
-        return userRepository.findById(userId);
-    }
-
-    public Uni<Optional<User>> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
 }

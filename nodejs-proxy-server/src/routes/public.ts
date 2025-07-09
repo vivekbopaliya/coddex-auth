@@ -48,9 +48,9 @@ export default (QUARKUS_URL: string) => {
           sameSite: "lax",
           maxAge: 7 * 24 * 60 * 60 * 1000,
         });
-        res.status(200).json(user);
+        res.status(200).json({token, user});
       } else {
-        res.status(response.status).json(response.data);
+        res.status(response.status).json();
       }
     } catch (err) {
       console.error("Login proxy error:", err);

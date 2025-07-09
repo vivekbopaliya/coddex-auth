@@ -25,9 +25,6 @@ public class EmailService {
     @ConfigProperty(name = "app.email.verification.base-url", defaultValue = "http://localhost:5173/verify")
     String verificationBaseUrl;
 
-    /**
-     * Sends an email verification link to the user
-     */
     public boolean sendVerificationEmail(String email, String verificationToken) {
         String verificationUrl = verificationBaseUrl + "?token=" + verificationToken;
 
@@ -49,9 +46,6 @@ public class EmailService {
         return sendEmail(email, subject, body);
     }
 
-    /**
-     * Sends a welcome email after successful verification
-     */
     public boolean sendWelcomeEmail(String email) {
         String subject = "Welcome to Oppex - Email Verified!";
         String body = """
@@ -68,34 +62,6 @@ public class EmailService {
         return sendEmail(email, subject, body);
     }
 
-    /**
-     * Sends a password reset email
-     */
-    public boolean sendPasswordResetEmail(String email, String resetToken) {
-        String resetUrl = "http://localhost:3000/reset-password?token=" + resetToken;
-
-        String subject = "Reset your password";
-        String body = String.format("""
-            <html>
-            <body>
-                <h2>Password Reset Request</h2>
-                <p>You have requested to reset your password. Click the link below to reset it:</p>
-                <p><a href="%s">Reset Password</a></p>
-                <p>If the link doesn't work, copy and paste this URL into your browser:</p>
-                <p>%s</p>
-                <p>This link will expire in 1 hour.</p>
-                <p>If you didn't request this reset, please ignore this email.</p>
-                <p>Best regards,<br>The Oppex Team</p>
-            </body>
-            </html>
-            """, resetUrl, resetUrl);
-
-        return sendEmail(email, subject, body);
-    }
-
-    /**
-     * Common method to send email using SendGrid
-     */
     public boolean sendEmail(String to, String subject, String htmlBody) {
         Email from = new Email(fromEmail, fromName);
         Email toEmail = new Email(to);

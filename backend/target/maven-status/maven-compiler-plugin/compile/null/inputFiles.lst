@@ -6,6 +6,5 @@
 /home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/repository/UserRepository.java
 /home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/repository/UserRepositoryImpl.java
 /home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/services/EmailService.java
-/home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/services/JwtService.java
 /home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/services/PasswordService.java
 /home/vivek/interview-assignments/oppex-auth/backend/src/main/java/org/oppex/services/UserService.java
