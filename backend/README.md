@@ -17,8 +17,8 @@ A RESTful backend built with Quarkus (Java), providing authentication and user m
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-org/central.git
-   cd central/backend
+   git clone  https://github.com/vivekbopaliya/oppex-auth.git
+   cd backend
    ```
 
 2. **Configure environment variables:**

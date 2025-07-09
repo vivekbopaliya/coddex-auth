@@ -19,8 +19,8 @@ A Node.js Express server that acts as a secure API gateway between the frontend 
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-org/central.git
-   cd central/nodejs-proxy-server
+   git clone https://github.com/vivekbopaliya/oppex-auth.git
+   cd nodejs-proxy-server
    ```
 
 2. **Install dependencies:**
@@ -45,12 +45,11 @@ A Node.js Express server that acts as a secure API gateway between the frontend 
 
 4. **Run the server:**
    ```bash
+   npm run build
    npm start
-   # or
-   yarn start
    ```
 
-   The proxy will listen on `http://localhost:3000`.
+   The proxy will listen on `http://localhost:5000`.
 
 ---
 
